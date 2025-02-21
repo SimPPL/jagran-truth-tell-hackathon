@@ -25,30 +25,30 @@ from scipy.cluster.hierarchy import linkage, fcluster
 gemini_api_key = st.secrets["gemini"]["api_key"]
 openai_api_key = st.secrets["openai"]["openai_api_key"]
 
-# Configure the genai client
+# Configure the Gemini client
 genai.configure(api_key=gemini_api_key)
 
-# configure the openai client
+# configure the OpenAI client
 openai.api_key = openai_api_key
 
-# Define a consistent color scheme
+# Color Schemes for The Plot
 COLOR_SCHEME = {
-    'primary': '#1f77b4',  # Blue
-    'secondary': '#ff7f0e',  # Orange
-    'accent': '#2ca02c',  # Green
-    'neutral': '#7f7f7f',  # Gray
-    'background': '#ffffff',  # White
-    'text': '#000000',      # Black
-    'text_light': '#ffffff'  # White text for dark backgrounds
+    'primary': '#1f77b4',  
+    'secondary': '#ff7f0e',  
+    'accent': '#2ca02c',  
+    'neutral': '#7f7f7f',  
+    'background': '#ffffff',  
+    'text': '#000000',      
+    'text_light': '#ffffff'   
 }
 
-# Define consistent layout parameters
+# Plot Layouts
 PLOT_HEIGHT = 500
 PLOT_WIDTH = 800
 PLOT_BGCOLOR = COLOR_SCHEME['background']
-PLOT_GRIDCOLOR = '#e0e0e0'  # Slightly darker grid for better visibility
+PLOT_GRIDCOLOR = '#e0e0e0'  
 
-# Define common layout settings
+# Common Layout settings
 COMMON_LAYOUT = {
     'height': PLOT_HEIGHT,
     'width': PLOT_WIDTH,
@@ -58,17 +58,18 @@ COMMON_LAYOUT = {
     'margin': dict(l=50, r=50, t=50, b=50)
 }
 
-plot_bgcolor='rgba(0,0,0,0)',  # Transparent plot background
-paper_bgcolor='rgba(0,0,0,0)'  # Transparent figure background
+# Transparent Layouts
+plot_bgcolor='rgba(0,0,0,0)',  
+paper_bgcolor='rgba(0,0,0,0)'  
 
-# Install and load spaCy model
+# Spacy Download
 try:
     nlp = spacy.load("en_core_web_sm")
 except OSError:
     subprocess.run(["python", "-m", "spacy", "download", "en_core_web_sm"])
     nlp = spacy.load("en_core_web_sm")
 
-# Set page title and layout
+# Title and Layout
 st.set_page_config(page_title="InfluenceCheck - Misinformation Detection", layout="wide")
 
 # Title and Introduction
@@ -174,7 +175,7 @@ class TopicMap:
             label = self.generate_cluster_label(sample_texts)
             topics.append(label)
 
-        return list(set(topics))  # Remove duplicates
+        return list(set(topics))  
 
 @st.cache_data
 def get_influencer_names():
@@ -224,7 +225,6 @@ def detect_emotions(text):
     return emotion_dict
 
 def generate_summary(text_data):
-    """Summarizes influencer content using Gemini"""
     if not isinstance(text_data, str) or not text_data.strip():
         return "No summary available."
 
@@ -241,16 +241,14 @@ def generate_summary(text_data):
 def load_influencer_images(influencer_name):
 
     current_dir = os.path.dirname(os.path.abspath(__file__))
-
     image_dir = os.path.join(current_dir, "downloaded_images", influencer_name)
     images = []
     
     if os.path.exists(image_dir):
-        # Get all jpg files in the influencer's directory
         image_files = sorted([
             f for f in os.listdir(image_dir) 
             if f.endswith('.jpg')
-        ])[:3]  # Get first 3 images
+        ])[:3]  # 3 images only
         
         for image_file in image_files:
             try:
@@ -262,11 +260,11 @@ def load_influencer_images(influencer_name):
     
     return images
 
-# Initialize session state for the dashboard visibility
+# Session for showing the dashboard
 if 'show_dashboard' not in st.session_state:
     st.session_state.show_dashboard = False
 
-# Initialize VADER Sentiment Analyzer
+# Sentiment Analyzer
 analyzer = SentimentIntensityAnalyzer()
 df = load_data()
 df = compute_sentiment_and_promotion(df)
@@ -283,7 +281,7 @@ st.markdown(
     unsafe_allow_html=True
 )
 
-# Add the Explore Dashboard button
+#Dashboard button
 if st.button("Explore Dashboard", type="primary"):
     st.session_state.show_dashboard = True
 
@@ -394,27 +392,27 @@ if st.session_state.show_dashboard:
             name="Emotion Distribution"
         ))
 
-        # Create a copy of COMMON_LAYOUT to avoid duplicate keyword arguments
+        
         custom_layout = COMMON_LAYOUT.copy()
         custom_layout.update({
-            "plot_bgcolor": 'rgba(0,0,0,0)',  # Transparent plot background
-            "paper_bgcolor": 'rgba(0,0,0,0)',  # Transparent figure background
+            "plot_bgcolor": 'rgba(0,0,0,0)',  
+            "paper_bgcolor": 'rgba(0,0,0,0)',  
             "polar": dict(
                 radialaxis=dict(
                     visible=True,
                     range=[0, max(values) + 1],
                     gridcolor=PLOT_GRIDCOLOR,
                     linecolor=COLOR_SCHEME['text'],
-                    tickfont={'color': "white", 'size': 16}  # Ensure tick labels are white
+                    tickfont={'color': "white", 'size': 16}  
                 ),
                 angularaxis=dict(
                     linecolor=COLOR_SCHEME['text'],
                     gridcolor=PLOT_GRIDCOLOR,
-                    tickfont={'color': "white", 'size':18}  # Ensure category labels are white
+                    tickfont={'color': "white", 'size':18}  
                 ),
                 bgcolor=PLOT_BGCOLOR
             ),
-            "font": dict(color="white"),  # Set all text labels to white
+            "font": dict(color="white"),  
             "showlegend": False
         })
 
@@ -422,7 +420,7 @@ if st.session_state.show_dashboard:
         st.plotly_chart(fig_spider, use_container_width=True)
 
 
-    # Sentiment Analysis Pie Chart
+        # Sentiment Analysis Pie Chart
         st.subheader("Audience Sentiment Analysis: A Breakdown of Reactions to Influencer Content")
         sentiment_counts = df_filtered["caption_sentiment"].value_counts()
 
@@ -444,11 +442,10 @@ if st.session_state.show_dashboard:
             insidetextfont=dict(color=COLOR_SCHEME['text_light'], size=20)
         )
 
-        # Create a copy of COMMON_LAYOUT and update it to avoid multiple keyword argument issues
         custom_layout = COMMON_LAYOUT.copy()
         custom_layout.update({
-            "plot_bgcolor": 'rgba(0,0,0,0)',  # Transparent plot background
-            "paper_bgcolor": 'rgba(0,0,0,0)',  # Transparent figure background
+            "plot_bgcolor": 'rgba(0,0,0,0)', 
+            "paper_bgcolor": 'rgba(0,0,0,0)',  
             "legend": dict(
                 bgcolor=COLOR_SCHEME['background'],
                 bordercolor=COLOR_SCHEME['text'],
@@ -464,11 +461,8 @@ if st.session_state.show_dashboard:
         st.subheader("Understanding Influencer Impact via Audience Reactions and Engagement Correlations")
         numeric_cols = ["like_count", "comments_count", "comments_score", "fact_check_rating_comments"]
         df_corr = df_filtered[numeric_cols].corr()
-
-        # Drop all-NaN rows/columns
         df_corr = df_corr.dropna(how="all", axis=0).dropna(how="all", axis=1)
 
-        # Extract correlation values and labels
         corr_values = df_corr.to_numpy()
         x_labels = list(df_corr.columns)
         y_labels = list(df_corr.index)
@@ -483,12 +477,11 @@ if st.session_state.show_dashboard:
             font_colors=['white', 'white']
         )
 
-        # Force background transparency for heatmap
         fig_corr.update_layout(
             width =500,
             height = 500,
-            paper_bgcolor='rgba(0,0,0,0)',  # Remove white background
-            plot_bgcolor='rgba(0,0,0,0)',  # Ensure transparency
+            paper_bgcolor='rgba(0,0,0,0)',
+            plot_bgcolor='rgba(0,0,0,0)',  
             xaxis=dict(
                 showgrid=False,
                 zeroline=False,
@@ -508,7 +501,6 @@ if st.session_state.show_dashboard:
             )
         )
 
-        # Update each annotation to ensure they blend well
         for annotation in fig_corr.layout.annotations:
             annotation.font.color = "white"
             annotation.font.size = 16
