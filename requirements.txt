@@ -1,0 +1,16 @@
+streamlit
+pandas
+plotly
+wordcloud
+textblob
+scipy
+numpy>1.23.5
+matplotlib
+requests
+regex
+cython==0.29.36
+gdown
+google-generativeai
+fastapi 
+uvicorn 
+requests
